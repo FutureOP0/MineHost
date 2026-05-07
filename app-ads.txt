@@ -1,0 +1,4 @@
+# Start.io (StartApp) Verification
+# Format: ad network domain, publisher account ID, type of relationship, certification authority ID
+# Replace [YOUR_DEVELOPER_ID] with your actual Start.io developer ID
+startapp.com, [YOUR_DEVELOPER_ID], DIRECT, 
