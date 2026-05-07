@@ -13,12 +13,12 @@
     
     <style>
         :root {
-            --bg-dark: #050505;
-            --bg-card: rgba(20, 20, 20, 0.6);
-            --border-card: rgba(255, 255, 255, 0.08);
-            --primary: #00F0FF;
-            --primary-glow: rgba(0, 240, 255, 0.4);
-            --secondary: #7000FF;
+            --bg-dark: #0D1117;
+            --bg-card: rgba(22, 27, 34, 0.7);
+            --border-card: rgba(255, 255, 255, 0.05);
+            --primary: #10B981;
+            --primary-glow: rgba(16, 185, 129, 0.3);
+            --secondary: #3B82F6;
             --text-light: #F8FAFC;
             --text-muted: #94A3B8;
         }
@@ -36,12 +36,12 @@
             min-height: 100vh;
             overflow-x: hidden;
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(112, 0, 255, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.1) 0%, transparent 40%);
+                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 40%);
             background-attachment: fixed;
         }
 
-        h1, h2, h3, .logo {
+        h1, h2, h3, .logo-text {
             font-family: 'Space Grotesk', sans-serif;
         }
 
@@ -61,15 +61,25 @@
         }
 
         .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .logo-text {
             font-size: 28px;
             font-weight: 900;
             letter-spacing: -0.5px;
             color: white;
-            text-decoration: none;
-            position: relative;
         }
 
-        .logo span {
+        .logo-text span {
             color: var(--primary);
         }
 
@@ -84,8 +94,8 @@
         }
 
         .badge {
-            background: rgba(0, 240, 255, 0.1);
-            border: 1px solid rgba(0, 240, 255, 0.2);
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
             color: var(--primary);
             padding: 8px 16px;
             border-radius: 100px;
@@ -102,7 +112,8 @@
             line-height: 1.05;
             margin-bottom: 24px;
             letter-spacing: -2px;
-            background: linear-gradient(180deg, #FFFFFF 0%, #A0A0A0 100%);
+            background: linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 100%);
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -117,8 +128,8 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, #00B4D8 100%);
-            color: #000;
+            background: linear-gradient(135deg, var(--primary) 0%, #059669 100%);
+            color: #FFFFFF;
             padding: 20px 48px;
             border-radius: 100px;
             font-size: 18px;
@@ -135,7 +146,7 @@
         .btn-primary:hover {
             transform: translateY(-4px) scale(1.02);
             box-shadow: 0 20px 40px var(--primary-glow);
-            background: linear-gradient(135deg, #2FF4FF 0%, #00C6ED 100%);
+            background: linear-gradient(135deg, #34D399 0%, #10B981 100%);
         }
 
         .btn-primary svg {
@@ -168,13 +179,13 @@
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
         }
 
         .feature-card:hover {
             transform: translateY(-8px);
-            border-color: rgba(0, 240, 255, 0.3);
-            background: rgba(20, 20, 20, 0.8);
+            border-color: rgba(16, 185, 129, 0.3);
+            background: rgba(33, 38, 45, 0.8);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
@@ -182,8 +193,8 @@
             width: 56px;
             height: 56px;
             border-radius: 16px;
-            background: rgba(0, 240, 255, 0.1);
-            border: 1px solid rgba(0, 240, 255, 0.2);
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -247,7 +258,10 @@
 <body>
     <div class="container">
         <nav>
-            <a href="#" class="logo">Mine<span>Host</span></a>
+            <a href="#" class="logo">
+                <img src="logo.svg" alt="MineHost Logo">
+                <span class="logo-text">Mine<span>Host</span></span>
+            </a>
         </nav>
 
         <main class="hero">
@@ -292,7 +306,7 @@
 
     <footer>
         <div class="container footer-content">
-            <span class="logo" style="font-size: 20px;">Mine<span>Host</span></span>
+            <span class="logo-text" style="font-size: 20px;">Mine<span style="color: var(--primary);">Host</span></span>
             <p class="footer-text">&copy; 2026 MineHost. Transforming mobile gaming infrastructure.</p>
             <div class="footer-links">
                 <a href="app-ads.txt" target="_blank" rel="noopener">app-ads.txt Verification</a>
