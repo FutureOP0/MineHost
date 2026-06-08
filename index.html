@@ -5,313 +5,1188 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MineHost | Premium Minecraft Hosting on Android</title>
     <meta name="description" content="Transform your Android device into a powerful Minecraft Java Edition server. Complete control, unmatched performance, everywhere you go.">
-    
-    <!-- Premium Fonts: Space Grotesk for headings, Inter for body -->
+    <meta name="theme-color" content="#0A0E17">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;700;900&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700;900&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg-dark: #0D1117;
-            --bg-card: rgba(22, 27, 34, 0.7);
-            --border-card: rgba(255, 255, 255, 0.05);
+            --bg-deep: #0A0E17;
+            --bg-surface: #111827;
+            --bg-card: rgba(17, 24, 39, 0.6);
+            --bg-card-hover: rgba(22, 33, 55, 0.8);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-hover: rgba(16, 185, 129, 0.4);
             --primary: #10B981;
-            --primary-glow: rgba(16, 185, 129, 0.3);
-            --secondary: #3B82F6;
-            --text-light: #F8FAFC;
-            --text-muted: #94A3B8;
+            --primary-light: #34D399;
+            --primary-glow: rgba(16, 185, 129, 0.25);
+            --primary-deep: #059669;
+            --accent: #6366F1;
+            --accent-glow: rgba(99, 102, 241, 0.2);
+            --text-white: #F8FAFC;
+            --text-secondary: #CBD5E1;
+            --text-muted: #64748B;
+            --text-dim: #475569;
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-full: 100px;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            font-family: 'Inter', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-white);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             min-height: 100vh;
             overflow-x: hidden;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 40%);
-            background-attachment: fixed;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        h1, h2, h3, .logo-text {
-            font-family: 'Space Grotesk', sans-serif;
+        h1, h2, h3, h4, .logo-text { font-family: 'Space Grotesk', sans-serif; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; width: 100%; }
+
+        /* ═══════════════════════════════════════════
+           ANIMATED BACKGROUND CANVAS
+           ═══════════════════════════════════════════ */
+        #bg-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
         }
 
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 24px;
-            width: 100%;
+        /* Gradient orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .orb-1 {
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.15), transparent 70%);
+            top: -10%; right: -5%;
+            animation: orbFloat1 20s ease-in-out infinite;
+        }
+        .orb-2 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.12), transparent 70%);
+            bottom: 10%; left: -8%;
+            animation: orbFloat2 25s ease-in-out infinite;
+        }
+        .orb-3 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.08), transparent 70%);
+            top: 50%; left: 40%;
+            animation: orbFloat3 18s ease-in-out infinite;
         }
 
-        /* Navbar */
-        nav {
-            padding: 32px 0;
+        @keyframes orbFloat1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(-40px, 60px) scale(1.1); }
+            66% { transform: translate(30px, -40px) scale(0.95); }
+        }
+        @keyframes orbFloat2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, -30px) scale(1.05); }
+            66% { transform: translate(-30px, 50px) scale(0.9); }
+        }
+        @keyframes orbFloat3 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-60px, -40px) scale(1.15); }
+        }
+
+        /* ═══════════════════════════════════════════
+           NAVBAR — Glassmorphism Sticky
+           ═══════════════════════════════════════════ */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            padding: 16px 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .navbar.scrolled {
+            background: rgba(10, 14, 23, 0.85);
+            backdrop-filter: blur(24px) saturate(1.8);
+            -webkit-backdrop-filter: blur(24px) saturate(1.8);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 10px 0;
+        }
+        .navbar-inner {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-
         .logo {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             text-decoration: none;
         }
-
-        .logo img {
-            width: 40px;
-            height: 40px;
-        }
-
+        .logo img { width: 36px; height: 36px; }
         .logo-text {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 900;
             letter-spacing: -0.5px;
             color: white;
         }
+        .logo-text span { color: var(--primary); }
 
-        .logo-text span {
-            color: var(--primary);
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            list-style: none;
+        }
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px; left: 0;
+            width: 0; height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+            border-radius: 1px;
+        }
+        .nav-links a:hover { color: var(--primary-light); }
+        .nav-links a:hover::after { width: 100%; }
+
+        .nav-cta {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--primary-light) !important;
+            padding: 10px 24px;
+            border-radius: var(--radius-full);
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            transition: all 0.3s ease !important;
+        }
+        .nav-cta::after { display: none !important; }
+        .nav-cta:hover {
+            background: rgba(16, 185, 129, 0.2) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px var(--primary-glow);
         }
 
-        /* Hero Section */
+        .mobile-toggle {
+            display: none;
+            background: none; border: none; cursor: pointer;
+            padding: 8px;
+        }
+        .mobile-toggle span {
+            display: block; width: 24px; height: 2px;
+            background: var(--text-secondary);
+            margin: 5px 0;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        /* ═══════════════════════════════════════════
+           HERO SECTION
+           ═══════════════════════════════════════════ */
         .hero {
-            padding: 120px 0;
+            position: relative;
+            z-index: 1;
+            padding: 160px 0 100px;
             display: flex;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            position: relative;
         }
 
-        .badge {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            color: var(--primary);
-            padding: 8px 16px;
-            border-radius: 100px;
-            font-size: 14px;
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(99, 102, 241, 0.08));
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            color: var(--primary-light);
+            padding: 8px 20px;
+            border-radius: var(--radius-full);
+            font-size: 13px;
             font-weight: 600;
-            margin-bottom: 32px;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
+            margin-bottom: 32px;
+            animation: fadeSlideUp 0.8s ease forwards;
+            opacity: 0;
+        }
+        .hero-badge .pulse-dot {
+            width: 8px; height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.4); }
         }
 
-        h1 {
-            font-size: clamp(48px, 8vw, 84px);
+        .hero h1 {
+            font-size: clamp(42px, 7vw, 80px);
             font-weight: 900;
             line-height: 1.05;
+            letter-spacing: -3px;
             margin-bottom: 24px;
-            letter-spacing: -2px;
-            background: linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 100%);
+            animation: fadeSlideUp 0.8s 0.15s ease forwards;
+            opacity: 0;
+        }
+        .hero h1 .gradient-text {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 40%, var(--accent) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero h1 .white-text {
+            background: linear-gradient(180deg, #FFFFFF 20%, #94A3B8 100%);
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .subtitle {
-            font-size: clamp(18px, 3vw, 22px);
-            color: var(--text-muted);
-            max-width: 640px;
+        .hero-subtitle {
+            font-size: clamp(17px, 2.5vw, 20px);
+            color: var(--text-secondary);
+            max-width: 580px;
             margin-bottom: 48px;
-            line-height: 1.6;
+            line-height: 1.7;
             font-weight: 400;
+            animation: fadeSlideUp 0.8s 0.3s ease forwards;
+            opacity: 0;
+        }
+
+        .hero-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeSlideUp 0.8s 0.45s ease forwards;
+            opacity: 0;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, #059669 100%);
+            position: relative;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-deep) 100%);
             color: #FFFFFF;
-            padding: 20px 48px;
-            border-radius: 100px;
-            font-size: 18px;
+            padding: 18px 40px;
+            border-radius: var(--radius-full);
+            font-size: 16px;
             font-weight: 700;
             text-decoration: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 10px 30px var(--primary-glow);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px var(--primary-glow), inset 0 1px 0 rgba(255,255,255,0.15);
             border: none;
             display: inline-flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
+            cursor: pointer;
+            overflow: hidden;
         }
-
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 200%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn-primary:hover::before { left: 100%; }
         .btn-primary:hover {
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 20px 40px var(--primary-glow);
-            background: linear-gradient(135deg, #34D399 0%, #10B981 100%);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 16px 48px var(--primary-glow);
+        }
+        .btn-primary svg { width: 20px; height: 20px; }
+
+        .btn-secondary {
+            color: var(--text-secondary);
+            padding: 18px 32px;
+            border-radius: var(--radius-full);
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid var(--border-subtle);
+            background: rgba(255,255,255,0.03);
+        }
+        .btn-secondary:hover {
+            color: var(--text-white);
+            border-color: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.06);
+            transform: translateY(-2px);
+        }
+        .btn-secondary svg { width: 18px; height: 18px; }
+
+        /* Hero glow ring */
+        .hero-glow {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px; height: 800px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.06) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: -1;
         }
 
-        .btn-primary svg {
-            width: 24px;
-            height: 24px;
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Features Grid */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 32px;
-            padding: 40px 0 120px;
+        /* ═══════════════════════════════════════════
+           STATS BAR
+           ═══════════════════════════════════════════ */
+        .stats-section {
             position: relative;
+            z-index: 1;
+            padding: 40px 0 80px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border-subtle);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+        }
+        .stat-item {
+            background: rgba(17, 24, 39, 0.5);
+            backdrop-filter: blur(12px);
+            padding: 40px 24px;
+            text-align: center;
+            transition: background 0.3s ease;
+        }
+        .stat-item:hover { background: rgba(22, 33, 55, 0.6); }
+        .stat-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(32px, 4vw, 48px);
+            font-weight: 900;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .feature-card {
+        /* ═══════════════════════════════════════════
+           SECTION STYLING
+           ═══════════════════════════════════════════ */
+        .section { position: relative; z-index: 1; padding: 100px 0; }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+        .section-label {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 16px;
+            padding: 6px 16px;
+            background: rgba(16, 185, 129, 0.08);
+            border-radius: var(--radius-full);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+        }
+        .section-title {
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 900;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+            margin-bottom: 16px;
+            background: linear-gradient(180deg, #FFFFFF 20%, #94A3B8 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .section-desc {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 560px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* ═══════════════════════════════════════════
+           BENTO FEATURES GRID
+           ═══════════════════════════════════════════ */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: auto auto;
+            gap: 20px;
+        }
+
+        .bento-card {
             background: var(--bg-card);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
             padding: 40px 32px;
-            border-radius: 24px;
-            transition: all 0.4s ease;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
         }
-
-        .feature-card::before {
+        .bento-card::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            inset: 0;
+            border-radius: var(--radius-lg);
+            padding: 1px;
+            background: linear-gradient(135deg, transparent, rgba(16, 185, 129, 0.1), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .bento-card:hover::before { opacity: 1; }
+        .bento-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(16, 185, 129, 0.2);
+            background: var(--bg-card-hover);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(16, 185, 129, 0.1);
         }
 
-        .feature-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(16, 185, 129, 0.3);
-            background: rgba(33, 38, 45, 0.8);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        }
+        .bento-card.wide { grid-column: span 2; }
 
-        .icon-box {
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.2);
+        .bento-icon {
+            width: 52px; height: 52px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 24px;
-            color: var(--primary);
+            position: relative;
         }
-
-        .icon-box svg {
-            width: 28px; height: 28px;
+        .bento-icon.green {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--primary-light);
         }
+        .bento-icon.blue {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            color: #818CF8;
+        }
+        .bento-icon.amber {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            color: #FBBF24;
+        }
+        .bento-icon.rose {
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.2);
+            color: #FB7185;
+        }
+        .bento-icon.cyan {
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            color: #22D3EE;
+        }
+        .bento-icon svg { width: 24px; height: 24px; }
 
-        .feature-card h3 {
-            font-size: 24px;
-            margin-bottom: 16px;
-            color: white;
+        .bento-card h3 {
+            font-size: 22px;
             font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-white);
+            letter-spacing: -0.3px;
         }
-
-        .feature-card p {
-            color: var(--text-muted);
-            line-height: 1.7;
-            font-size: 16px;
-        }
-
-        /* Footer */
-        footer {
-            border-top: 1px solid var(--border-card);
-            padding: 40px 0;
-            text-align: center;
-        }
-
-        .footer-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .footer-text {
+        .bento-card p {
             color: var(--text-muted);
             font-size: 15px;
+            line-height: 1.7;
         }
 
-        .footer-links a {
+        /* Inline mini terminal in the wide card */
+        .mini-terminal {
+            margin-top: 24px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            color: var(--primary-light);
+            line-height: 1.8;
+            overflow: hidden;
+        }
+        .mini-terminal .prompt { color: var(--text-muted); }
+        .mini-terminal .cmd { color: var(--primary-light); }
+        .mini-terminal .output { color: var(--text-dim); }
+
+        /* ═══════════════════════════════════════════
+           HOW IT WORKS
+           ═══════════════════════════════════════════ */
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            position: relative;
+        }
+        .steps-grid::before {
+            content: '';
+            position: absolute;
+            top: 52px;
+            left: calc(16.66% + 16px);
+            right: calc(16.66% + 16px);
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary));
+            opacity: 0.2;
+        }
+
+        .step-card {
+            text-align: center;
+            padding: 0 16px;
+        }
+        .step-number {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 22px;
+            font-weight: 900;
+            position: relative;
+            z-index: 1;
+        }
+        .step-number.s1 {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            color: var(--primary-light);
+        }
+        .step-number.s2 {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.05));
+            border: 2px solid rgba(99, 102, 241, 0.3);
+            color: #818CF8;
+        }
+        .step-number.s3 {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
+            border: 2px solid rgba(245, 158, 11, 0.3);
+            color: #FBBF24;
+        }
+        .step-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-white);
+        }
+        .step-card p {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        /* ═══════════════════════════════════════════
+           SUPPORTED SOFTWARE MARQUEE
+           ═══════════════════════════════════════════ */
+        .software-section { padding: 60px 0; position: relative; z-index: 1; }
+        .software-track {
+            display: flex;
+            gap: 48px;
+            animation: marquee 30s linear infinite;
+            width: max-content;
+        }
+        .software-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-dim);
+            white-space: nowrap;
+            letter-spacing: -0.2px;
+            flex-shrink: 0;
+        }
+        .software-item .sw-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+            opacity: 0.4;
+        }
+        @keyframes marquee {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        .marquee-wrap { overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
+
+        /* ═══════════════════════════════════════════
+           CTA SECTION
+           ═══════════════════════════════════════════ */
+        .cta-section {
+            position: relative;
+            z-index: 1;
+            padding: 100px 0;
+        }
+        .cta-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, rgba(99, 102, 241, 0.06) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.12);
+            border-radius: 32px;
+            padding: 80px 48px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-box::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: 20%; right: 20%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary-glow), transparent);
+        }
+        .cta-box h2 {
+            font-size: clamp(28px, 4vw, 44px);
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+            background: linear-gradient(180deg, #FFF 20%, #CBD5E1 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .cta-box p {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 480px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+        }
+
+        /* ═══════════════════════════════════════════
+           FOOTER
+           ═══════════════════════════════════════════ */
+        footer {
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid var(--border-subtle);
+            padding: 64px 0 32px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 48px;
+            margin-bottom: 48px;
+        }
+        .footer-brand p {
+            color: var(--text-muted);
+            font-size: 14px;
+            line-height: 1.7;
+            margin-top: 16px;
+            max-width: 280px;
+        }
+        .footer-col h4 {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+        .footer-col ul { list-style: none; }
+        .footer-col li { margin-bottom: 12px; }
+        .footer-col a {
             color: var(--text-muted);
             text-decoration: none;
             font-size: 14px;
             transition: color 0.2s ease;
         }
+        .footer-col a:hover { color: var(--primary-light); }
 
-        .footer-links a:hover {
-            color: var(--primary);
+        .footer-bottom {
+            border-top: 1px solid var(--border-subtle);
+            padding-top: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .footer-bottom p {
+            color: var(--text-dim);
+            font-size: 13px;
+        }
+        .footer-bottom-links {
+            display: flex;
+            gap: 24px;
+        }
+        .footer-bottom-links a {
+            color: var(--text-dim);
+            font-size: 13px;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .footer-bottom-links a:hover { color: var(--text-secondary); }
+
+        /* ═══════════════════════════════════════════
+           SCROLL REVEAL
+           ═══════════════════════════════════════════ */
+        .reveal {
+            opacity: 0;
+            transform: translateY(32px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.4s; }
+
+        /* ═══════════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            .bento-grid { grid-template-columns: repeat(2, 1fr); }
+            .bento-card.wide { grid-column: span 2; }
+            .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
         }
 
         @media (max-width: 768px) {
-            .hero { padding: 80px 0; }
-            .btn-primary { padding: 18px 36px; font-size: 16px; }
+            .nav-links { display: none; }
+            .mobile-toggle { display: block; }
+
+            .hero { padding: 120px 0 60px; }
+            .hero h1 { letter-spacing: -1.5px; }
+
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+
+            .bento-grid { grid-template-columns: 1fr; }
+            .bento-card.wide { grid-column: span 1; }
+
+            .steps-grid { grid-template-columns: 1fr; gap: 48px; }
+            .steps-grid::before { display: none; }
+
+            .hero-actions { flex-direction: column; width: 100%; }
+            .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+
+            .cta-box { padding: 56px 24px; }
+
+            .footer-grid { grid-template-columns: 1fr; }
+            .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .stat-item { padding: 28px 16px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <nav>
+
+    <!-- Background Effects -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- ══════════ NAVBAR ══════════ -->
+    <header class="navbar" id="navbar">
+        <div class="container navbar-inner">
             <a href="#" class="logo">
                 <img src="logo.svg" alt="MineHost Logo">
                 <span class="logo-text">Mine<span>Host</span></span>
             </a>
-        </nav>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#download" class="nav-cta">Download</a></li>
+            </ul>
+            <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
 
-        <main class="hero">
-            <div class="badge">Next Generation Hosting</div>
-            <h1>Powerful Servers.<br>Zero Hardware.</h1>
-            <p class="subtitle">Transform your Android smartphone into a dedicated Java Edition server. Unmatched performance, total control, and instant multiplayer capabilities.</p>
-            
-            <a href="minehost-official-release-v1.0.0.apk" class="btn-primary" download>
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-                </svg>
-                Download for Android
-            </a>
-        </main>
-
-        <section class="features-grid">
-            <div class="feature-card">
-                <div class="icon-box">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                </div>
-                <h3>Native Optimization</h3>
-                <p>Engineered from the ground up for modern ARM64 architecture, delivering desktop-class TPS and memory efficiency directly on your mobile processor.</p>
+    <!-- ══════════ HERO ══════════ -->
+    <section class="hero" id="top">
+        <div class="hero-glow"></div>
+        <div class="container" style="display:flex;flex-direction:column;align-items:center;">
+            <div class="hero-badge">
+                <span class="pulse-dot"></span>
+                Now Available
             </div>
-            
-            <div class="feature-card">
-                <div class="icon-box">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+            <h1>
+                <span class="white-text">Your Phone is a</span><br>
+                <span class="gradient-text">Minecraft Server.</span>
+            </h1>
+            <p class="hero-subtitle">Transform any Android device into a dedicated Minecraft Java Edition server. No PC required, no cloud bills, no limits.</p>
+            <div class="hero-actions">
+                <a href="minehost-official-release-v1.0.0.apk" class="btn-primary" download id="download-hero">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Download APK
+                </a>
+                <a href="#features" class="btn-secondary">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Learn More
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════ STATS ══════════ -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid reveal">
+                <div class="stat-item">
+                    <div class="stat-number" data-target="4" data-suffix="">0</div>
+                    <div class="stat-label">Server Types</div>
                 </div>
-                <h3>Global Connectivity</h3>
-                <p>Seamlessly tunnel your server to the public internet. Friends can join instantly from anywhere in the world without complex network configurations.</p>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="100" data-suffix="%">0%</div>
+                    <div class="stat-label">Free & Open Source</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="0" data-suffix="" data-text="No Root">No Root</div>
+                    <div class="stat-label">Required</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════ SUPPORTED SOFTWARE MARQUEE ══════════ -->
+    <section class="software-section">
+        <div class="marquee-wrap">
+            <div class="software-track">
+                <div class="software-item"><span class="sw-dot"></span>Vanilla</div>
+                <div class="software-item"><span class="sw-dot"></span>Paper</div>
+                <div class="software-item"><span class="sw-dot"></span>Spigot</div>
+                <div class="software-item"><span class="sw-dot"></span>Forge</div>
+                <!-- Duplicate for seamless loop -->
+                <div class="software-item"><span class="sw-dot"></span>Vanilla</div>
+                <div class="software-item"><span class="sw-dot"></span>Paper</div>
+                <div class="software-item"><span class="sw-dot"></span>Spigot</div>
+                <div class="software-item"><span class="sw-dot"></span>Forge</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════ FEATURES ══════════ -->
+    <section class="section" id="features">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-label">Features</span>
+                <h2 class="section-title">Built Different.</h2>
+                <p class="section-desc">Every feature engineered for a single purpose — running production-grade Minecraft servers from your pocket.</p>
             </div>
 
-            <div class="feature-card">
-                <div class="icon-box">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <div class="bento-grid">
+                <div class="bento-card wide reveal reveal-delay-1">
+                    <div class="bento-icon green">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <h3>Blazing Fast Performance</h3>
+                    <p>A real JVM running natively on your phone, delivering desktop-class tick rates and memory efficiency. Start a server in seconds and maintain a rock-solid 20 TPS.</p>
+                    <div class="mini-terminal">
+                        <span class="prompt">&gt;</span> <span class="cmd">server start --software paper --version 1.21</span><br>
+                        <span class="output">[INFO] Loading server.jar (Paper 1.21.11)</span><br>
+                        <span class="output">[INFO] Done (4.2s)! Server running on 0.0.0.0:25565</span><br>
+                        <span class="output">[INFO] TPS: <span style="color:#34D399">20.0</span> | RAM: 312MB / 1024MB</span>
+                    </div>
                 </div>
-                <h3>Absolute Control</h3>
-                <p>Modify server properties, manage memory allocation, and access the live console. Run the exact server environment you need with zero compromises.</p>
-            </div>
-        </section>
-    </div>
 
+                <div class="bento-card reveal reveal-delay-2">
+                    <div class="bento-icon blue">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+                    </div>
+                    <h3>Global Tunneling</h3>
+                    <p>Integrated playit.gg tunneling exposes your server to the public internet instantly. Friends connect from anywhere — no port forwarding needed.</p>
+                </div>
+
+                <div class="bento-card reveal reveal-delay-1">
+                    <div class="bento-icon amber">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7zm0 5h16M9 4v3m6-3v3"></path></svg>
+                    </div>
+                    <h3>Full File Manager</h3>
+                    <p>Browse, edit, and manage every file on your server. Edit configs in-app, upload plugins, adjust world settings — all from your phone.</p>
+                </div>
+
+                <div class="bento-card reveal reveal-delay-2">
+                    <div class="bento-icon rose">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    </div>
+                    <h3>Live Console</h3>
+                    <p>Full command-line access to your running server. Execute commands, view logs in real-time, and manage players with zero delay.</p>
+                </div>
+
+                <div class="bento-card wide reveal reveal-delay-3">
+                    <div class="bento-icon cyan">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    </div>
+                    <h3>Background Resilience</h3>
+                    <p>Your server runs as a foreground service with wake locks and WiFi locks. Minimize the app, lock your phone — the server stays up. Built for 24/7 uptime on mobile hardware with zero interruptions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════ HOW IT WORKS ══════════ -->
+    <section class="section" id="how-it-works">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-label">How It Works</span>
+                <h2 class="section-title">Three Steps. That's It.</h2>
+                <p class="section-desc">From zero to a fully operational Minecraft server in under a minute.</p>
+            </div>
+
+            <div class="steps-grid">
+                <div class="step-card reveal reveal-delay-1">
+                    <div class="step-number s1">1</div>
+                    <h3>Install MineHost</h3>
+                    <p>Download the APK and install it on any Android device running 8.0 or later. No root required.</p>
+                </div>
+                <div class="step-card reveal reveal-delay-2">
+                    <div class="step-number s2">2</div>
+                    <h3>Create a Server</h3>
+                    <p>Pick your server software, choose a version, name your world, and allocate RAM. One screen, done.</p>
+                </div>
+                <div class="step-card reveal reveal-delay-3">
+                    <div class="step-number s3">3</div>
+                    <h3>Play With Friends</h3>
+                    <p>Hit Start. Your server boots in seconds with a public IP. Share the address and play instantly.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════ CTA ══════════ -->
+    <section class="cta-section" id="download">
+        <div class="container">
+            <div class="cta-box reveal">
+                <h2>Ready to Host?</h2>
+                <p>Download MineHost and start your first server in under 60 seconds. Free. No account required.</p>
+                <a href="minehost-official-release-v1.0.0.apk" class="btn-primary" download id="download-cta">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Download for Android
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════ FOOTER ══════════ -->
     <footer>
-        <div class="container footer-content">
-            <span class="logo-text" style="font-size: 20px;">Mine<span style="color: var(--primary);">Host</span></span>
-            <p class="footer-text">&copy; 2026 MineHost. Transforming mobile gaming infrastructure.</p>
-            <div class="footer-links">
-                <a href="app-ads.txt" target="_blank" rel="noopener">app-ads.txt Verification</a>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="logo" style="margin-bottom:8px;">
+                        <img src="logo.svg" alt="MineHost Logo">
+                        <span class="logo-text">Mine<span>Host</span></span>
+                    </a>
+                    <p>The world's first native Minecraft Java Edition server hosting platform built exclusively for Android.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#how-it-works">How It Works</a></li>
+                        <li><a href="#download">Download</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="https://github.com/FutureOP0/MineHost" target="_blank" rel="noopener">GitHub</a></li>
+                        <li><a href="app-ads.txt" target="_blank" rel="noopener">app-ads.txt</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 MineHost. All rights reserved.</p>
+                <div class="footer-bottom-links">
+                    <a href="https://github.com/FutureOP0/MineHost" target="_blank" rel="noopener">GitHub</a>
+                </div>
             </div>
         </div>
     </footer>
+
+    <script>
+        // ══════════ Sticky Navbar ══════════
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 40);
+        });
+
+        // ══════════ Scroll Reveal ══════════
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // ══════════ Stat Counter Animation ══════════
+        const statObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const target = parseInt(el.dataset.target);
+                    const suffix = el.dataset.suffix || '';
+                    const text = el.dataset.text;
+                    if (text) return; // skip static text
+                    if (target === 0) return;
+
+                    let current = 0;
+                    const step = Math.max(1, Math.floor(target / 40));
+                    const timer = setInterval(() => {
+                        current += step;
+                        if (current >= target) {
+                            current = target;
+                            clearInterval(timer);
+                        }
+                        el.textContent = current + suffix;
+                    }, 30);
+                    statObserver.unobserve(el);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.stat-number').forEach(el => statObserver.observe(el));
+
+        // ══════════ Particle Grid Canvas ══════════
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouse = { x: -1000, y: -1000 };
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        document.addEventListener('mousemove', e => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.3;
+                this.speedY = (Math.random() - 0.5) * 0.3;
+                this.opacity = Math.random() * 0.3 + 0.05;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                const dx = mouse.x - this.x;
+                const dy = mouse.y - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 150) {
+                    const force = (150 - dist) / 150;
+                    this.x -= dx * force * 0.01;
+                    this.y -= dy * force * 0.01;
+                    this.opacity = Math.min(0.6, this.opacity + 0.02);
+                } else {
+                    this.opacity += (0.1 - this.opacity) * 0.01;
+                }
+
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                    this.reset();
+                }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(16, 185, 129, ${this.opacity})`;
+                ctx.fill();
+            }
+        }
+
+        // Scale particle count to screen
+        const pCount = Math.min(80, Math.floor((window.innerWidth * window.innerHeight) / 15000));
+        for (let i = 0; i < pCount; i++) particles.push(new Particle());
+
+        function drawLines() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(16, 185, 129, ${0.06 * (1 - dist / 120)})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            drawLines();
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // ══════════ Smooth scroll for anchor links ══════════
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
 </body>
 </html>
